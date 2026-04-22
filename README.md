@@ -1,11 +1,13 @@
 # tokencrypt (3ncr.org)
 
-Rust implementation of the [3ncr.org](https://3ncr.org/) v1 string encryption
-standard.
+[![Test](https://github.com/3ncr/tokencrypt-rust/actions/workflows/test.yml/badge.svg)](https://github.com/3ncr/tokencrypt-rust/actions/workflows/test.yml)
+[![Crates.io](https://img.shields.io/crates/v/tokencrypt.svg)](https://crates.io/crates/tokencrypt)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-3ncr.org is a small, interoperable format for encrypted strings, originally
-intended for encrypting tokens in configuration files but usable for any UTF-8
-string. v1 uses AES-256-GCM with a 12-byte random IV:
+[3ncr.org](https://3ncr.org/) is a standard for string encryption / decryption
+(algorithms + storage format), originally intended for encrypting tokens in
+configuration files but usable for any UTF-8 string. v1 uses AES-256-GCM for
+authenticated encryption with a 12-byte random IV:
 
 ```
 3ncr.org/1#<base64(iv[12] || ciphertext || tag[16])>
@@ -13,6 +15,8 @@ string. v1 uses AES-256-GCM with a 12-byte random IV:
 
 Encrypted values look like
 `3ncr.org/1#pHRufQld0SajqjHx+FmLMcORfNQi1d674ziOPpG52hqW5+0zfJD91hjXsBsvULVtB017mEghGy3Ohj+GgQY5MQ`.
+
+This is the official Rust implementation.
 
 ## Install
 
@@ -25,23 +29,9 @@ Requires Rust 1.85+.
 
 ## Usage
 
-Pick a constructor based on the entropy of your secret.
-
-### Recommended: Argon2id (low-entropy secrets)
-
-For passwords or passphrases, use `TokenCrypt::from_argon2id`. It uses the
-parameters recommended by the [3ncr.org v1 spec](https://3ncr.org/1/#kdf)
-(m=19456 KiB, t=2, p=1). Salt must be at least 16 bytes.
-
-```rust
-use tokencrypt::TokenCrypt;
-
-let tc = TokenCrypt::from_argon2id(
-    "correct horse battery staple",
-    b"0123456789abcdef",
-)?;
-# Ok::<(), tokencrypt::TokenCryptError>(())
-```
+Pick a constructor based on the entropy of your secret — see the
+[3ncr.org v1 KDF guidance](https://3ncr.org/1/#kdf) for the canonical
+recommendation.
 
 ### Recommended: raw 32-byte key (high-entropy secrets)
 
@@ -63,6 +53,30 @@ use tokencrypt::TokenCrypt;
 
 let tc = TokenCrypt::from_sha3("some-high-entropy-api-token");
 ```
+
+### Recommended: Argon2id (passwords / low-entropy secrets)
+
+For passwords or passphrases, use `TokenCrypt::from_argon2id`. It uses the
+parameters recommended by the [3ncr.org v1 spec](https://3ncr.org/1/#kdf)
+(`m=19456 KiB, t=2, p=1`). The salt must be at least 16 bytes.
+
+```rust
+use tokencrypt::TokenCrypt;
+
+let tc = TokenCrypt::from_argon2id(
+    "correct horse battery staple",
+    b"0123456789abcdef",
+)?;
+# Ok::<(), tokencrypt::TokenCryptError>(())
+```
+
+### Legacy: PBKDF2-SHA3 (existing data only)
+
+This crate does not implement the legacy PBKDF2-SHA3 KDF that earlier 3ncr.org
+libraries (Go, Node.js, PHP, Java) shipped for backward compatibility. If you
+need to decrypt data produced by that KDF, derive the 32-byte key with a
+PBKDF2-SHA3-256 implementation (for example the `pbkdf2` crate with
+`Sha3_256`) and pass the result to `from_raw_key`.
 
 ### Encrypt / decrypt
 
@@ -99,4 +113,4 @@ derived key to verify envelope-level interop. See `tests/tokencrypt.rs`.
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
