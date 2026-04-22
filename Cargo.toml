@@ -1,0 +1,25 @@
+[package]
+name = "tokencrypt"
+version = "1.0.0"
+edition = "2021"
+rust-version = "1.74"
+description = "Rust implementation of the 3ncr.org v1 string encryption standard (AES-256-GCM)."
+license = "MIT"
+repository = "https://github.com/3ncr/tokencrypt-rust"
+homepage = "https://3ncr.org/"
+documentation = "https://docs.rs/tokencrypt"
+readme = "README.md"
+keywords = ["3ncr", "encryption", "aes-gcm", "argon2id", "tokens"]
+categories = ["cryptography"]
+
+[dependencies]
+aes-gcm = { version = "0.10", default-features = false, features = ["aes", "alloc", "getrandom"] }
+sha3 = { version = "0.10", default-features = false }
+pbkdf2 = { version = "0.12", default-features = false, features = ["hmac"] }
+hmac = { version = "0.12", default-features = false }
+argon2 = { version = "0.5", default-features = false, features = ["alloc"] }
+base64 = { version = "0.22", default-features = false, features = ["alloc"] }
+getrandom = "0.2"
+
+[dev-dependencies]
+hex = "0.4"
