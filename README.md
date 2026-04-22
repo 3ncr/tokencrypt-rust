@@ -21,7 +21,7 @@ Encrypted values look like
 tokencrypt = "1"
 ```
 
-Requires Rust 1.74+.
+Requires Rust 1.85+.
 
 ## Usage
 

@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rust: [stable, "1.74"]
+        rust: [stable, "1.85"]
     name: Rust ${{ matrix.rust }}
     steps:
       - uses: actions/checkout@v4
