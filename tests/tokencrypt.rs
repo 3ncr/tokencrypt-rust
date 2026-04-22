@@ -1,12 +1,17 @@
 //! Integration tests for the Rust implementation of 3ncr.org v1.
 
-#![allow(deprecated)] // exercising the deprecated legacy PBKDF2 KDF
-
 use tokencrypt::{TokenCrypt, TokenCryptError, HEADER_V1};
 
-/// Canonical v1 test vectors shared across Go, Node, PHP, Python, and Rust
-/// implementations. Derived via PBKDF2-SHA3-256 with secret="a", salt="b",
-/// iterations=1000.
+/// Canonical v1 envelope test vectors — shared with Go, Node, PHP, Python, and
+/// other implementations. The 32-byte AES key was originally derived via the
+/// legacy PBKDF2-SHA3-256 KDF with secret="a", salt="b", iterations=1000;
+/// this Rust library only supports the modern KDFs, so the derived key is
+/// hardcoded here so we can still verify envelope-level interop.
+const CANONICAL_KEY: [u8; 32] = [
+    0x2f, 0x84, 0x15, 0x18, 0x69, 0xd7, 0xd2, 0x25, 0x5d, 0x62, 0xb3, 0x32, 0x0e, 0x97, 0x42, 0x9b,
+    0xde, 0x5a, 0xac, 0x04, 0xa0, 0x57, 0x3b, 0x24, 0x68, 0x52, 0x9a, 0x74, 0x17, 0x51, 0x5f, 0x87,
+];
+
 const CANONICAL_VECTORS: &[(&str, &str)] = &[
     ("a", "3ncr.org/1#I09Dwt6q05ZrH8GQ0cp+g9Jm0hD0BmCwEdylCh8"),
     (
@@ -23,8 +28,8 @@ const CANONICAL_VECTORS: &[(&str, &str)] = &[
     ),
 ];
 
-fn legacy() -> TokenCrypt {
-    TokenCrypt::from_pbkdf2_sha3("a", "b", 1000)
+fn canonical() -> TokenCrypt {
+    TokenCrypt::from_raw_key(CANONICAL_KEY)
 }
 
 fn random_key() -> [u8; 32] {
@@ -35,7 +40,7 @@ fn random_key() -> [u8; 32] {
 
 #[test]
 fn decrypts_all_canonical_vectors() {
-    let tc = legacy();
+    let tc = canonical();
     for (plaintext, encrypted) in CANONICAL_VECTORS {
         let decoded = tc.decrypt_if_3ncr(encrypted).unwrap();
         assert_eq!(decoded.as_ref(), *plaintext);
@@ -44,7 +49,7 @@ fn decrypts_all_canonical_vectors() {
 
 #[test]
 fn round_trips_canonical_plaintexts() {
-    let tc = legacy();
+    let tc = canonical();
     for (plaintext, _) in CANONICAL_VECTORS {
         let enc = tc.encrypt_3ncr(plaintext);
         assert!(enc.starts_with(HEADER_V1));
@@ -120,7 +125,7 @@ fn truncated_payload_is_rejected() {
 
 #[test]
 fn decoder_accepts_padded_input() {
-    let tc = legacy();
+    let tc = canonical();
     let (plaintext, encrypted) = CANONICAL_VECTORS[0];
     let body = &encrypted[HEADER_V1.len()..];
     let pad = "=".repeat((4 - body.len() % 4) % 4);

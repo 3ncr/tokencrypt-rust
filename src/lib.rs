@@ -23,7 +23,6 @@ use aes_gcm::{Aes256Gcm, Key, Nonce};
 use argon2::{Algorithm, Argon2, Params, Version};
 use base64::engine::general_purpose::STANDARD_NO_PAD;
 use base64::Engine;
-use hmac::Hmac;
 use sha3::{Digest, Sha3_256};
 
 /// 3ncr.org v1 envelope header.
@@ -133,27 +132,6 @@ impl TokenCrypt {
         ctx.hash_password_into(secret.as_ref(), salt, &mut key)
             .map_err(|_| TokenCryptError::Argon2)?;
         Ok(Self::from_raw_key(key))
-    }
-
-    /// Derive the AES key via PBKDF2-HMAC-SHA3-256 (legacy KDF).
-    ///
-    /// Kept for backward compatibility with data encrypted by earlier 3ncr.org
-    /// libraries. New callers should use [`TokenCrypt::from_argon2id`] for
-    /// passwords or [`TokenCrypt::from_raw_key`] / [`TokenCrypt::from_sha3`]
-    /// for high-entropy secrets. See <https://3ncr.org/1/#kdf>.
-    #[deprecated(
-        since = "1.0.0",
-        note = "legacy KDF; use from_argon2id for passwords or from_raw_key / from_sha3 for high-entropy secrets"
-    )]
-    pub fn from_pbkdf2_sha3(
-        secret: impl AsRef<[u8]>,
-        salt: impl AsRef<[u8]>,
-        iterations: u32,
-    ) -> Self {
-        let mut key = [0u8; AES_KEY_SIZE];
-        pbkdf2::pbkdf2::<Hmac<Sha3_256>>(secret.as_ref(), salt.as_ref(), iterations, &mut key)
-            .expect("pbkdf2 with a 32-byte output length never fails");
-        Self::from_raw_key(key)
     }
 
     /// Encrypt a UTF-8 string and return a `3ncr.org/1#...` value.

@@ -64,21 +64,6 @@ use tokencrypt::TokenCrypt;
 let tc = TokenCrypt::from_sha3("some-high-entropy-api-token");
 ```
 
-### Legacy: PBKDF2-SHA3
-
-The original `(secret, salt, iterations)` KDF is kept for backward compatibility
-with data encrypted by earlier 3ncr.org libraries. It is **deprecated** — prefer
-`from_argon2id`, `from_raw_key`, or `from_sha3` for new code.
-
-```rust
-# #[allow(deprecated)]
-# {
-use tokencrypt::TokenCrypt;
-
-let tc = TokenCrypt::from_pbkdf2_sha3("my-secret", "my-salt", 1000);
-# }
-```
-
 ### Encrypt / decrypt
 
 ```rust
@@ -106,9 +91,11 @@ This implementation decrypts the canonical v1 test vectors shared with the
 [Go](https://github.com/3ncr/tokencrypt),
 [Node.js](https://github.com/3ncr/nodencrypt),
 [PHP](https://github.com/3ncr/tokencrypt-php), and
-[Python](https://github.com/3ncr/tokencrypt-python) reference libraries
-(`secret = "a"`, `salt = "b"`, `iterations = 1000`). See
-`tests/tokencrypt.rs`.
+[Python](https://github.com/3ncr/tokencrypt-python) reference libraries. The
+original 32-byte AES key was derived via PBKDF2-SHA3-256 with
+`secret = "a"`, `salt = "b"`, `iterations = 1000`; this library only ships the
+modern KDFs (raw key / SHA3-256 / Argon2id), so the test harness hardcodes the
+derived key to verify envelope-level interop. See `tests/tokencrypt.rs`.
 
 ## License
 
