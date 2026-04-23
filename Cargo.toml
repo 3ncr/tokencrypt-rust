@@ -17,4 +17,4 @@ aes-gcm = { version = "0.10", default-features = false, features = ["aes", "allo
 sha3 = { version = "0.11", default-features = false }
 argon2 = { version = "0.5", default-features = false, features = ["alloc"] }
 base64 = { version = "0.22", default-features = false, features = ["alloc"] }
-getrandom = "0.2"
+getrandom = "0.4"
