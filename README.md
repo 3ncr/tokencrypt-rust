@@ -41,7 +41,7 @@ If you already have a 32-byte AES-256 key, skip the KDF and pass it directly.
 use tokencrypt::TokenCrypt;
 
 let mut key = [0u8; 32];
-getrandom::getrandom(&mut key).expect("system RNG");
+getrandom::fill(&mut key).expect("system RNG");
 let tc = TokenCrypt::from_raw_key(key);
 ```
 
