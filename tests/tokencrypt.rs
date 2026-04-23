@@ -34,7 +34,7 @@ fn canonical() -> TokenCrypt {
 
 fn random_key() -> [u8; 32] {
     let mut k = [0u8; 32];
-    getrandom::getrandom(&mut k).expect("system RNG");
+    getrandom::fill(&mut k).expect("system RNG");
     k
 }
 

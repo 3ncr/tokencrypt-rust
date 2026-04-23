@@ -137,7 +137,7 @@ impl TokenCrypt {
     /// Encrypt a UTF-8 string and return a `3ncr.org/1#...` value.
     pub fn encrypt_3ncr(&self, plaintext: &str) -> String {
         let mut iv = [0u8; IV_SIZE];
-        getrandom::getrandom(&mut iv).expect("system RNG unavailable");
+        getrandom::fill(&mut iv).expect("system RNG unavailable");
         let nonce = Nonce::from_slice(&iv);
         let ct_and_tag = self
             .cipher
