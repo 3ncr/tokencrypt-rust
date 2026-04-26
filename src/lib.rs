@@ -8,7 +8,7 @@
 //! on the entropy of the input secret.
 //!
 //! ```no_run
-//! use tokencrypt::TokenCrypt;
+//! use threencr::TokenCrypt;
 //!
 //! let tc = TokenCrypt::from_sha3("some-high-entropy-api-token");
 //! let enc = tc.encrypt_3ncr("hello");

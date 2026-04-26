@@ -1,5 +1,5 @@
 [package]
-name = "tokencrypt"
+name = "threencr"
 version = "1.0.0"
 edition = "2021"
 rust-version = "1.85"
@@ -7,7 +7,7 @@ description = "Rust implementation of the 3ncr.org v1 string encryption standard
 license = "MIT"
 repository = "https://github.com/3ncr/tokencrypt-rust"
 homepage = "https://3ncr.org/"
-documentation = "https://docs.rs/tokencrypt"
+documentation = "https://docs.rs/threencr"
 readme = "README.md"
 keywords = ["3ncr", "encryption", "aes-gcm", "argon2id", "tokens"]
 categories = ["cryptography"]
