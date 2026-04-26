@@ -1,6 +1,6 @@
 //! Integration tests for the Rust implementation of 3ncr.org v1.
 
-use tokencrypt::{TokenCrypt, TokenCryptError, HEADER_V1};
+use threencr::{TokenCrypt, TokenCryptError, HEADER_V1};
 
 /// Canonical v1 envelope test vectors — shared with Go, Node, PHP, Python, and
 /// other implementations. The 32-byte AES key was originally derived via the

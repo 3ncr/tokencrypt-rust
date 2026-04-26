@@ -1,7 +1,7 @@
-# tokencrypt (3ncr.org)
+# threencr (3ncr.org)
 
 [![Test](https://github.com/3ncr/tokencrypt-rust/actions/workflows/test.yml/badge.svg)](https://github.com/3ncr/tokencrypt-rust/actions/workflows/test.yml)
-[![Crates.io](https://img.shields.io/crates/v/tokencrypt.svg)](https://crates.io/crates/tokencrypt)
+[![Crates.io](https://img.shields.io/crates/v/threencr.svg)](https://crates.io/crates/threencr)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/3ncr/tokencrypt-rust/badge)](https://scorecard.dev/viewer/?uri=github.com/3ncr/tokencrypt-rust)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -25,7 +25,7 @@ languages (Go, Node.js, PHP, Python, Java, C#, Ruby).
 
 ```toml
 [dependencies]
-tokencrypt = "1"
+threencr = "1"
 ```
 
 Requires Rust 1.85+.
@@ -41,7 +41,7 @@ recommendation.
 If you already have a 32-byte AES-256 key, skip the KDF and pass it directly.
 
 ```rust
-use tokencrypt::TokenCrypt;
+use threencr::TokenCrypt;
 
 let mut key = [0u8; 32];
 getrandom::fill(&mut key).expect("system RNG");
@@ -52,7 +52,7 @@ For a high-entropy secret that is not already 32 bytes (e.g. a random API
 token), hash it through SHA3-256:
 
 ```rust
-use tokencrypt::TokenCrypt;
+use threencr::TokenCrypt;
 
 let tc = TokenCrypt::from_sha3("some-high-entropy-api-token");
 ```
@@ -64,13 +64,13 @@ parameters recommended by the [3ncr.org v1 spec](https://3ncr.org/1/#kdf)
 (`m=19456 KiB, t=2, p=1`). The salt must be at least 16 bytes.
 
 ```rust
-use tokencrypt::TokenCrypt;
+use threencr::TokenCrypt;
 
 let tc = TokenCrypt::from_argon2id(
     "correct horse battery staple",
     b"0123456789abcdef",
 )?;
-# Ok::<(), tokencrypt::TokenCryptError>(())
+# Ok::<(), threencr::TokenCryptError>(())
 ```
 
 ### Legacy: PBKDF2-SHA3 (existing data only)
@@ -84,7 +84,7 @@ PBKDF2-SHA3-256 implementation (for example the `pbkdf2` crate with
 ### Encrypt / decrypt
 
 ```rust
-use tokencrypt::TokenCrypt;
+use threencr::TokenCrypt;
 
 let tc = TokenCrypt::from_sha3("some-high-entropy-api-token");
 
@@ -92,7 +92,7 @@ let encrypted = tc.encrypt_3ncr("08019215-B205-4416-B2FB-132962F9952F");
 // e.g. "3ncr.org/1#pHRu..."
 
 let decrypted = tc.decrypt_if_3ncr(&encrypted)?;
-# Ok::<(), tokencrypt::TokenCryptError>(())
+# Ok::<(), threencr::TokenCryptError>(())
 ```
 
 `decrypt_if_3ncr` returns its input unchanged (as `Cow::Borrowed`) when the
@@ -100,7 +100,7 @@ value does not start with the `3ncr.org/1#` header. This makes it safe to route
 every configuration value through it regardless of whether it was encrypted.
 
 Decryption failures (bad tag, truncated input, malformed base64) return a
-`tokencrypt::TokenCryptError`.
+`threencr::TokenCryptError`.
 
 ## Cross-implementation interop
 
@@ -112,7 +112,7 @@ This implementation decrypts the canonical v1 test vectors shared with the
 original 32-byte AES key was derived via PBKDF2-SHA3-256 with
 `secret = "a"`, `salt = "b"`, `iterations = 1000`; this library only ships the
 modern KDFs (raw key / SHA3-256 / Argon2id), so the test harness hardcodes the
-derived key to verify envelope-level interop. See `tests/tokencrypt.rs`.
+derived key to verify envelope-level interop. See `tests/threencr.rs`.
 
 ## License
 
