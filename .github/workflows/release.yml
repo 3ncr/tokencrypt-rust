@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  publish-crate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    name: cargo publish
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
+        with:
+          toolchain: stable
+
+      - name: Verify release tag matches Cargo.toml version
+        run: |
+          set -euo pipefail
+          manifest_version=$(grep -E '^version = "' Cargo.toml | head -1 | cut -d'"' -f2)
+          tag="${GITHUB_REF#refs/tags/}"
+          tag_version="${tag#v}"
+          if [ "$manifest_version" != "$tag_version" ]; then
+            echo "::error::Cargo.toml version ($manifest_version) does not match release tag ($tag)"
+            exit 1
+          fi
+          echo "Publishing threencr v$manifest_version"
+
+      - name: cargo test
+        run: cargo test --verbose
+
+      - name: cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo publish
