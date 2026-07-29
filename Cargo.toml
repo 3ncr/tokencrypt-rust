@@ -13,7 +13,7 @@ keywords = ["3ncr", "encryption", "aes-gcm", "argon2id", "tokens"]
 categories = ["cryptography"]
 
 [dependencies]
-aes-gcm = { version = "0.10", default-features = false, features = ["aes", "alloc", "getrandom"] }
+aes-gcm = { version = "0.11", default-features = false, features = ["aes", "alloc", "getrandom"] }
 sha3 = { version = "0.12", default-features = false }
 argon2 = { version = "0.5", default-features = false, features = ["alloc"] }
 base64 = { version = "0.23", default-features = false, features = ["alloc"] }
